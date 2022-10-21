@@ -23,17 +23,14 @@ int main(int argc, char **argv)
     for(;;)
     {
         connfd = accept(listenfd,(struct sockaddr*)NULL,NULL);
-        for(;;)
-        {
-            printf("Write something to talk to clients: ");
-            /// Use dynamic allocation to delcare string because string data type does not exist in C.
-            char* str = (char*)calloc(MAXLINE,sizeof(char)); 
-            fgets(str,100,stdin);
-            snprintf(buff,sizeof(buff),"%s\n",str);
-            write(connfd,buff,strlen(buff));
-            ///take the memory allocated back to OS
-            free(str);
-        }
+        printf("Write something to talk to clients: ");
+        /// Use dynamic allocation to delcare string because string data type does not exist in C.
+        char* str = (char*)calloc(MAXLINE,sizeof(char)); 
+        fgets(str,100,stdin);
+        snprintf(buff,sizeof(buff),"%s\n",str);
+        write(connfd,buff,strlen(buff));
+        ///take the memory allocated back to OS
+        free(str);
         close(connfd);
     }
 }

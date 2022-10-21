@@ -7,11 +7,10 @@
 #include<string.h>
 #define MAXLINE 100
 int main(int argc, char **argv)
-{
+{   //setting up connection
     int sockfd, n;
-    char recvline[MAXLINE + 1];
-    char buff[MAXLINE];
     struct sockaddr_in servaddr;
+    char buff[MAXLINE+1];
     if(argc!=2)
     {
         printf("usage:a.out < IPaddress");
@@ -22,7 +21,7 @@ int main(int argc, char **argv)
     }
     bzero(&servaddr,sizeof(servaddr));
     servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(11113);
+    servaddr.sin_port = htons(22222);
     if(inet_pton(AF_INET,argv[1],&servaddr.sin_addr)<=0)
     {
         printf("inet_ption error for %s",argv[1]);
@@ -31,12 +30,27 @@ int main(int argc, char **argv)
     {
         printf("Connection error");
     }
-    for(;;)
+    //proceed process
+    //write to server
+    /// Use dynamic allocation to delcare string because string data type does not exist in C.
+        printf("Write something to server: ");
+        char* str = (char*)calloc(MAXLINE,sizeof(char)); 
+        fgets(str,100,stdin);
+        write(sockfd,str,strlen(str));
+    ///take the memory allocated back to OS
+        free(str);
+    char *recvline = (char*)calloc(MAXLINE+1,sizeof(char));
+    while((n = read(sockfd,recvline,MAXLINE))>0)
     {
-        fgets(buff,sizeof(buff),stdin);
-        printf("%s",buff);
-        write(sockfd,buff,strlen(buff));
+        recvline[n] = 0;
+        if(fputs(recvline,stdout)==EOF)
+        {
+            printf("fputs error");
+        }
+        if(n<0)
+        {
+             printf("read error");
+        }
     }
-    exit(0);
-
+    free(recvline);
 }

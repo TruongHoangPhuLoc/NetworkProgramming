@@ -4,27 +4,44 @@
 #include <time.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include<stdlib.h>
 #define MAXLINE 100
 int main(int argc, char **argv)
 {
-    int listenfd, connfd,n;
+    int listenfd, connfd;
     struct sockaddr_in servaddr;
-    char recvline[MAXLINE + 1];
     char buff[MAXLINE];
+    time_t ticks;
     listenfd = socket(AF_INET,SOCK_STREAM,0);
     bzero(&servaddr,sizeof(servaddr));
     servaddr.sin_family = AF_INET;
-    ///what is this?
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    servaddr.sin_port = htons(11113);
+    /// declare port opened in Server
+    servaddr.sin_port = htons(22222);
     bind(listenfd,(struct sockaddr*)&servaddr,sizeof(servaddr));
     listen(listenfd,10);
     for(;;)
     {
         connfd = accept(listenfd,(struct sockaddr*)NULL,NULL);
-        n = read(listenfd,recvline,MAXLINE);
-        printf("%d",n);
-        recvline[n] = 0;
-        close(listenfd);
+        char *recvline = (char*)calloc(MAXLINE+1,sizeof(char));
+        int n;
+        //get message from client
+        while((n = read(connfd,recvline,MAXLINE))>0)
+        {
+            recvline[n] = 0;
+            if(fputs(recvline,stdout)==EOF)
+            {
+                printf("fputs error");
+            }
+            if(n<0)
+            {
+                printf("read error");
+            }
+        }
+        //give message back to client
+        snprintf(buff,sizeof(buff),"There is message received from you:%s\n",recvline);
+        write(connfd,buff,strlen(buff));
+        free(recvline);
+        close(connfd);
     }
 }

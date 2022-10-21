@@ -7,7 +7,7 @@
 #include<string.h>
 #define MAXLINE 100
 int main(int argc, char **argv)
-{
+{   
     int sockfd, n;
     struct sockaddr_in servaddr;
     if(argc!=2)
@@ -29,23 +29,18 @@ int main(int argc, char **argv)
     {
         printf("Connection error");
     }
-    for(;;)
+    char *recvline = (char*)calloc(MAXLINE+1,sizeof(char));
+    while((n = read(sockfd,recvline,MAXLINE))>0)
     {
-        char *recvline = (char*)calloc(MAXLINE+1,sizeof(char));
-        if((n = read(sockfd,recvline,MAXLINE))>0)
+        recvline[n] = 0;
+        if(fputs(recvline,stdout)==EOF)
         {
-            recvline[n] = 0;
-            if(fputs(recvline,stdout)==EOF)
-            {
-                printf("fputs error");
-            }
-            if(n<0)
-            {
-                printf("read error");
-            }
+            printf("fputs error");
         }
-        free(recvline);
+        if(n<0)
+        {
+             printf("read error");
+        }
     }
-    exit(0);
-
+    free(recvline);
 }
