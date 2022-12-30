@@ -5,6 +5,7 @@
 #include<stdlib.h>
 #include<time.h>
 #include<string.h>
+#include<unistd.h>
 #define MAXLINE 100
 int main(int argc, char **argv)
 {   //setting up connection
@@ -32,26 +33,38 @@ int main(int argc, char **argv)
     }
     //proceed process
     //write to server
-    /// Use dynamic allocation to delcare string because string data type does not exist in C.
+    // /// Use dynamic allocation to delcare string because string data type does not exist in C.
+    //     printf("Write something to server: ");
+    //     char* str = (char*)calloc(MAXLINE,sizeof(char)); 
+    //     fgets(str,100,stdin);
+    //     write(sockfd,str,strlen(str));
+    // ///take the memory allocated back to OS
+    //     free(str);
+    char *recvline = (char*)calloc(MAXLINE+1,sizeof(char));
+    while(1)
+    {
+        //proceed process
+        //write to server
+        /// Use dynamic allocation to delcare string because string data type does not exist in C.
         printf("Write something to server: ");
         char* str = (char*)calloc(MAXLINE,sizeof(char)); 
         fgets(str,100,stdin);
         write(sockfd,str,strlen(str));
-    ///take the memory allocated back to OS
+        ///take the memory allocated back to OS
         free(str);
-    char *recvline = (char*)calloc(MAXLINE+1,sizeof(char));
-    while((n = read(sockfd,recvline,MAXLINE))>0)
-    {
-        recvline[n] = 0;
-        if(fputs(recvline,stdout)==EOF)
+        ///sleep(3);
+        if((n = read(sockfd,recvline,MAXLINE))>0)
         {
-            printf("fputs error");
-        }
-        if(n<0)
-        {
-             printf("read error");
+            recvline[n] = 0;
+            if(fputs(recvline,stdout)==EOF)
+            {
+                printf("fputs error");
+            }
+            if(n<0)
+            {
+                printf("read error");
+            }
+            free(recvline);
         }
     }
-    free(recvline);
-    close(sockfd);
 }

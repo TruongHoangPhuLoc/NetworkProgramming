@@ -21,7 +21,7 @@ int main(int argc, char **argv)
     }
     bzero(&servaddr,sizeof(servaddr));
     servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(22222);
+    servaddr.sin_port = htons(60000);
     if(inet_pton(AF_INET,argv[1],&servaddr.sin_addr)<=0)
     {
         printf("inet_ption error for %s",argv[1]);
@@ -52,6 +52,8 @@ int main(int argc, char **argv)
              printf("read error");
         }
     }
+    FILE* f = fopen("clientFile.txt","a");
+    fputs(strcat(recvline,"\n"),f);
     free(recvline);
     close(sockfd);
 }

@@ -1,0 +1,78 @@
+#include<sys/types.h>
+#include<sys/socket.h>
+#include<arpa/inet.h>
+#include<stdio.h>
+#include<stdlib.h>
+#include<time.h>
+#include<string.h>
+#include<unistd.h>
+#define MAXLINE 100
+struct account {
+    char username[100];
+    char password[100];
+};
+int main(int argc, char **argv)
+{   //setting up connection
+    int sockfd, n;
+    struct sockaddr_in servaddr;
+    char buff[MAXLINE+1];
+    if(argc!=2)
+    {
+        printf("usage:a.out < IPaddress");
+    }
+    if((sockfd=socket(AF_INET,SOCK_STREAM,0)) < 0 )
+    {
+        printf("socket error");
+    }
+    bzero(&servaddr,sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_port = htons(22222);
+    if(inet_pton(AF_INET,argv[1],&servaddr.sin_addr)<=0)
+    {
+        printf("inet_ption error for %s",argv[1]);
+    }
+    if(connect(sockfd,(struct sockaddr*)&servaddr,sizeof(servaddr))<0)
+    {
+        printf("Connection error");
+    }
+    //proceed process
+    //write to server
+    // /// Use dynamic allocation to delcare string because string data type does not exist in C.
+    //     printf("Write something to server: ");
+    //     char* str = (char*)calloc(MAXLINE,sizeof(char)); 
+    //     fgets(str,100,stdin);
+    //     write(sockfd,str,strlen(str));
+    // ///take the memory allocated back to OS
+    //     free(str);
+    char *recvline = (char*)calloc(MAXLINE+1,sizeof(char));
+    while(1)
+    {
+        //proceed process
+        //write to server
+        /// Use dynamic allocation to delcare string because string data type does not exist in C.
+        printf("Enter username: ");
+        char str[100];
+        fgets(str,100,stdin);
+        printf("Enter password: ");
+        char str1[100];
+        fgets(str1,100,stdin);
+        char account[100];
+        snprintf(account,100,"%s %s",str,str1);
+        write(sockfd,account,strlen(account));
+        
+        ///sleep(3);
+        if((n = read(sockfd,recvline,MAXLINE))>0)
+        {
+            recvline[n] = 0;
+            if(fputs(recvline,stdout)==EOF)
+            {
+                printf("fputs error");
+            }
+            if(n<0)
+            {
+                printf("read error");
+            }
+            free(recvline);
+        }
+    }
+}

@@ -28,7 +28,7 @@ int main(int argc, char **argv)
         //get message from client
         while((n = read(connfd,recvline,MAXLINE))>0)
         {
-            recvline[n] = 0;
+            recvline[n-1] = 0;
             if(fputs(recvline,stdout)==EOF)
             {
                 printf("fputs error");
@@ -37,7 +37,16 @@ int main(int argc, char **argv)
             {
                 printf("read error");
             }
-            snprintf(buff,sizeof(buff),"There is message received from you:%s\n",recvline);
+            ///count the words received from clients
+            int words = 0;
+            for(int i = 0;i<=strlen(recvline);i++)
+            {
+                if(recvline[i] == 'x' || recvline[i] == 'X')
+                {
+                    words += 1;
+                }
+            }
+            snprintf(buff,sizeof(buff),"The number of \'X\' characters I have received from you is %d\n",words);
             write(connfd,buff,strlen(buff));
             free(recvline);
             close(connfd);

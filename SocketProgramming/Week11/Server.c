@@ -17,7 +17,7 @@ int main(int argc, char **argv)
     servaddr.sin_family = AF_INET;
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     /// declare port opened in Server
-    servaddr.sin_port = htons(22222);
+    servaddr.sin_port = htons(60000);
     bind(listenfd,(struct sockaddr*)&servaddr,sizeof(servaddr));
     listen(listenfd,10);
     for(;;)
@@ -28,7 +28,7 @@ int main(int argc, char **argv)
         //get message from client
         while((n = read(connfd,recvline,MAXLINE))>0)
         {
-            recvline[n] = 0;
+            recvline[n-1] = 0;
             if(fputs(recvline,stdout)==EOF)
             {
                 printf("fputs error");
@@ -37,8 +37,27 @@ int main(int argc, char **argv)
             {
                 printf("read error");
             }
-            snprintf(buff,sizeof(buff),"There is message received from you:%s\n",recvline);
-            write(connfd,buff,strlen(buff));
+            ///open file
+            FILE* f = fopen(recvline,"r");
+            char result[100] = "";
+            if(f == NULL)
+            {   
+                printf("Can not open the file\n");
+                strcpy(result,"Can not open the file");
+            }
+            else
+            {
+                while(!feof(f))
+                {
+                    char line[100];
+                    fgets(line,sizeof(result),f);
+                    strcat(result,line);
+                    printf("%s\n",result);
+                }
+                fclose(f);
+            }
+            printf("result is %s\n",result);
+            write(connfd,result,strlen(result));
             free(recvline);
             close(connfd);
         }

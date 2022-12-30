@@ -52,6 +52,22 @@ int main(int argc, char **argv)
              printf("read error");
         }
     }
+    char plaintext[100];
+    int indxofplaintext = 0;
+    for(int i = 2; i < strlen(recvline); i++)
+    {
+        plaintext[indxofplaintext] = recvline[i];
+        indxofplaintext++;
+    }
+    plaintext[indxofplaintext] = '\0';
+    int key = atoi(&recvline[0]);
+    printf("\nKey is %d\n",key);
+    for(int i = 0 ; i < strlen(plaintext); i++)
+    {
+        plaintext[i] = plaintext[i] - 3;
+    }
+    printf("length is %d\n",strlen(plaintext));
+    printf("Plain text is %s",plaintext);
     free(recvline);
     close(sockfd);
 }

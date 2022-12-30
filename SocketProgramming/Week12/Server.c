@@ -20,28 +20,19 @@ int main(int argc, char **argv)
     servaddr.sin_port = htons(22222);
     bind(listenfd,(struct sockaddr*)&servaddr,sizeof(servaddr));
     listen(listenfd,10);
+    int numberofclients;
     for(;;)
     {
-        connfd = accept(listenfd,(struct sockaddr*)NULL,NULL);
-        char *recvline = (char*)calloc(MAXLINE+1,sizeof(char));
-        int n;
-        //get message from client
-        while((n = read(connfd,recvline,MAXLINE))>0)
-        {
-            recvline[n] = 0;
-            if(fputs(recvline,stdout)==EOF)
-            {
-                printf("fputs error");
-            }
-            if(n<0)
-            {
-                printf("read error");
-            }
-            snprintf(buff,sizeof(buff),"There is message received from you:%s\n",recvline);
-            write(connfd,buff,strlen(buff));
-            free(recvline);
+       connfd = accept(listenfd,(struct sockaddr*)NULL,NULL);
+       numberofclients++;
+       if(fork()==0)
+       {
+            close(listenfd);
+            snprintf(buff,sizeof(buff),"your client number is %d\n",numberofclients);
+            write(connfd,buff,MAXLINE);
             close(connfd);
-        }
-        //give message back to client
+            exit(0);
+       }
+       close(connfd);
     }
 }

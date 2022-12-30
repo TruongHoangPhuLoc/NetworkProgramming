@@ -22,20 +22,26 @@ int main(int argc, char **argv)
     listen(listenfd,10);
     for(;;)
     {
-        // connfd = accept(listenfd,(struct sockaddr*)NULL,NULL);
-        // ticks = time(NULL);
-        // snprintf(buff,sizeof(buff),"%.24s\r\n",ctime(&ticks));
-        // write(connfd,buff,strlen(buff));
-        // close(connfd);
-        printf("Write something to talk to clients: ");
-        /// Use dynamic allocation to delcare string because string data type does not exist in C.
-        char* str = (char*)calloc(MAXLINE,sizeof(char)); 
-        fgets(str,100,stdin);
         connfd = accept(listenfd,(struct sockaddr*)NULL,NULL);
-        snprintf(buff,sizeof(buff),"%s\n",str);
-        write(connfd,buff,strlen(buff));
-        ///take the memory allocated back to OS
-        free(str);
-        close(connfd);
+        char *recvline = (char*)calloc(MAXLINE+1,sizeof(char));
+        int n;
+        //get message from client
+        while((n = read(connfd,recvline,MAXLINE))>0)
+        {
+            recvline[n-1] = 0;
+            if(fputs(recvline,stdout)==EOF)
+            {
+                printf("fputs error");
+            }
+            if(n<0)
+            {
+                printf("read error");
+            }
+            snprintf(buff,sizeof(buff),"You've sent string with %d characters\n",strlen(recvline),recvline);
+            write(connfd,buff,strlen(buff));
+            free(recvline);
+            close(connfd);
+        }
+        //give message back to client
     }
 }
